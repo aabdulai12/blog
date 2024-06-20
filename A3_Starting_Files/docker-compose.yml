@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  www:
+    build: .
+    volumes:
+      - "./:/var/www/html" # sync project dir with container web dir
+    ports:
+      - "80:80" # map port 80 on host to port 80 in container
+      - "443:443" # for future SSL traffic
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: posts
+      MYSQL_USER: php_docker
+      MYSQL_PASSWORD: password1 # this should live in env var
+      MYSQL_ALLOW_EMPTY_PASSWORD: '1' # equivalent to true
+    volumes:
+      - mysql_data:/var/lib/mysql # use named volume for MySQL data
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8000:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
